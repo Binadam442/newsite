@@ -1,16 +1,48 @@
-import  { createContext } from "react";
+import  { createContext, useState, useEffect } from "react";
+import { dummyCourses } from "../assets/assets";
+import { useNavigate } from "react-router-dom";
 
-const Appcontext = createContext()
+export const AppContext = createContext()
 
-export const AppcontextProvider = (props)=>{
+export const AppContextProvider = (props)=>{
+
+const currency = import.meta.env.VITE_CURRENCY
+
+const {navigate} = useNavigate()
+
+const  [ allCourses, setAllCourses ] = useState([])
+const  [ isEducator, setIsEducator ] = useState([true])
+
+// fetch all courses
+const fetchAllCourses = async ()=>{
+    setAllCourses(dummyCourses)
+}
+
+
+  //function to calculate average rating of course
+  const calculateRating = (course)=>{
+        if(course.courseRatings.length === 0){
+            return 0;
+        }
+        let totalRating = 0
+        course.courseRatings.forEach(rating => {
+            totalRating += rating.rating
+        })
+        return totalRating / course.length
+  }
+
+   useEffect(()=>{
+        fetchAllCourses()
+   },[])
 
     const value = {
+        currency, allCourses, navigate, calculateRating, isEducator, setIsEducator
 
     }
 
     return (
-        <Appcontext.Provider value={value}>
+        <AppContext.Provider value={value}>
             {props.children}
-        </Appcontext.Provider>
+        </AppContext.Provider>
     )
 }
