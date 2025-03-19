@@ -70,6 +70,7 @@ const Dashboard = () => {
 
                                         </td>
                                         <td className="px-4 py-3 truncate">{item.courseTitles}</td>
+                                        
 
                                     </tr>
                                 ))}
