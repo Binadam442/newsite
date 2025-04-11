@@ -3,15 +3,41 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useClerk, UserButton, useUser } from '@clerk/clerk-react';
 import { AppContext } from '../../context/AppContext';
 import { assets } from '../../assets/assets';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const Navbar = () => {
     const navigate = useNavigate();  //  Use useNavigate directly
     const location = useLocation();  //  Use useLocation to get pathname
-    const { isEducator } = useContext(AppContext);
+    const { isEducator, backendurl, setEducator, getToken} = useContext(AppContext);
     const iscourselistpage = location.pathname.includes('/Courselist');
 
     const { openSignIn } = useClerk();
     const { user } = useUser();
+
+    const becomeEducator = async ()=>{
+        try{
+            if(isEducator){
+                navigate('/educator')
+                return;
+            }
+
+            const token = await getToken()
+            const { data } = await axios.get(backendurl + `/api/educator/update-role`, {headers: 
+                {Authorization: `Bearer ${token}` }})
+
+                if(data.success){
+                    setEducator(true)
+                    toast.success(data.message)
+                }else{
+                    toast.error(data.message)
+                }
+
+        } catch (error){
+            toast.error(error.message)
+
+        }
+    }
 
     return (
         <div className={`flex items-center justify-between px-4 sm:px-10 md:px-14 lg:px-36 border-b
@@ -29,7 +55,7 @@ const Navbar = () => {
                 <div className="flex items-center gap-5">
                     {user && (
                         <>
-                            <button onClick={() => navigate('/educator')}>
+                           <button onClick={() => navigate('/educator')}>
                                 {isEducator ? 'Educator Dashboard' : 'Become Educator'}
                             </button>
                             | <Link to="/Myenrolment">My Enrollment</Link>
